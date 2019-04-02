@@ -2,7 +2,7 @@ import sys
 import socket
 from struct import *
 
-MSG_TAMANHO_MAX = 5
+MSG_TAMANHO_MAX = 7
 
 def le_teclado(): 
 	entrada = raw_input()
@@ -15,12 +15,12 @@ def gera_mensagem(entrada):
 	valor = dados[1]
 
 	if sinal == "+":
-		mensagem = 1
+		mensagem = '1'
 	elif sinal == "-":
-		mensagem = 0
-	valor_codificado = pack("!I", valor)
+		mensagem = '0'
+	valor_codificado = pack("!I", int(valor))
 
-	return mensagem
+	return (mensagem + valor_codificado)
 
 # Leitura da porta a ser atribuida ao servidor
 if len(sys.argv) < 3:
@@ -39,7 +39,7 @@ socket_cliente.connect(endServidor)
 # Aguarda entrada do teclado
 entrada_dados = le_teclado()
 
-while entrada_dados != 'quit':
+while True:
     mensagem = gera_mensagem(entrada_dados)
     nbytes = socket_cliente.send(mensagem)
     if nbytes != len(mensagem):
@@ -50,9 +50,9 @@ while entrada_dados != 'quit':
     if not resposta:
         print("Falhou para receber uma mensagem")
         break
-   	print resposta
+    print resposta
    	    
     entrada_dados = le_teclado()
 
 # Finalizacao
-end()
+socket_cliente.close()
