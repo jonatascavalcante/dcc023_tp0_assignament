@@ -1,8 +1,11 @@
 import sys
 import socket
 from struct import *
+import errno
 
-MSG_TAMANHO_MAX = 7
+MSG_TAMANHO_MAX = 6
+MSG_TAMANHO_MIN = 5
+TIME_OUT        = 15
 
 def le_teclado(): 
 	entrada = raw_input()
@@ -29,7 +32,9 @@ enderecoIP = sys.argv[1]
 porta      = int(sys.argv[2])
 
 # Criacao do socket
+time_out = pack('ll', TIME_OUT, 0)
 socket_cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+socket_cliente.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, time_out)
 
 # Conexao (abertura ativa)
 endServidor = (enderecoIP, porta)
@@ -39,18 +44,22 @@ socket_cliente.connect(endServidor)
 # Aguarda entrada do teclado
 entrada_dados = le_teclado()
 
-while True:
+while entrada_dados != 'quit':
     mensagem = gera_mensagem(entrada_dados)
+    if len(mensagem) < MSG_TAMANHO_MIN:
+    	break
     nbytes = socket_cliente.send(mensagem)
     if nbytes != len(mensagem):
-        print("Falhou ao enviar a mensagem")
         break
 
-    resposta = socket_cliente.recv(MSG_TAMANHO_MAX)
-    if not resposta:
-        print("Falhou para receber uma mensagem")
-        break
-    print resposta
+    try:
+    	resposta = socket_cliente.recv(MSG_TAMANHO_MAX)
+    except socket.error, erro:
+    	erro_socket = erro.args[0]
+    	if erro_socket == errno.EAGAIN or erro_socket == errno.EWOULDBLOCK:
+    		break
+    else:
+    	print resposta
    	    
     entrada_dados = le_teclado()
 

@@ -1,11 +1,13 @@
 import sys
 import socket
 from struct import *
+import errno
 
 MSG_TAMANHO_MAX = 5
 MAX_CLIENTES    = 10
-MODULO_MAX 	    = 1000000
+MODULO_MAX	    = 1000000
 QTD_DIGITOS     = 6
+TIME_OUT        = 15
 
 def decodifica_mensagem(mensagem, contador):
 	sinal = mensagem[0]
@@ -46,8 +48,9 @@ if len(sys.argv) < 2:
 porta = int(sys.argv[1])
 
 # Criacao do socket
+time_out = pack('ll', TIME_OUT, 0)
 socket_servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-socket_servidor.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+socket_servidor.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, time_out)
 
 # Abertura passiva
 endereco = ("", porta)
@@ -61,18 +64,21 @@ while True:
 
 	# Comunicacao entre o servidor e o cliente
 	while True:
-		mensagem = socket_cliente.recv(MSG_TAMANHO_MAX)
+		try:
+			mensagem = socket_cliente.recv(MSG_TAMANHO_MAX)
+		except socket.error, erro:
+			erro_socket = erro.args[0]
+			if erro_socket == errno.EAGAIN or erro_socket == errno.EWOULDBLOCK:
+				break
+			if not mensagem:
+				break
+    		else:
+				contador = decodifica_mensagem(mensagem, contador)
+				resposta = monta_resposta(contador)
 
-		# Falha ao receber a mensagem
-		if not mensagem:
-			break
-
-		contador = decodifica_mensagem(mensagem, contador)
-		resposta = monta_resposta(contador)
-
-		nbytes = socket_cliente.send(resposta)
-		if nbytes != len(resposta):
-			break
+				nbytes = socket_cliente.send(resposta)
+				if nbytes != len(resposta):
+					break
 
 	# Finalizacao
 	socket_cliente.close()
