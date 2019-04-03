@@ -2,7 +2,8 @@ import sys
 import socket
 from struct import *
 
-MSG_TAMANHO_MAX = 7
+MSG_TAMANHO_MAX = 6
+TIME_OUT 	    = 15
 
 def le_teclado(): 
 	entrada = raw_input()
@@ -29,7 +30,9 @@ enderecoIP = sys.argv[1]
 porta      = int(sys.argv[2])
 
 # Criacao do socket
+time_out = pack('ll', TIME_OUT, 0)
 socket_cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+socket_cliente.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, time_out)
 
 # Conexao (abertura ativa)
 endServidor = (enderecoIP, porta)
@@ -43,12 +46,10 @@ while True:
     mensagem = gera_mensagem(entrada_dados)
     nbytes = socket_cliente.send(mensagem)
     if nbytes != len(mensagem):
-        print("Falhou ao enviar a mensagem")
         break
 
     resposta = socket_cliente.recv(MSG_TAMANHO_MAX)
     if not resposta:
-        print("Falhou para receber uma mensagem")
         break
     print resposta
    	    
