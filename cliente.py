@@ -47,8 +47,13 @@ while True:
     nbytes = socket_cliente.send(mensagem)
     if nbytes != len(mensagem):
         break
-
-    resposta = socket_cliente.recv(MSG_TAMANHO_MAX)
+    try:
+    	resposta = socket_cliente.recv(MSG_TAMANHO_MAX)
+    except socket.error, error:
+    	erro_socket = error.args[0]
+    	if erro_socket == errno.EAGAIN or erro_socket == errno.EWOULDBLOCK:
+    		break
+    		
     if not resposta:
         break
     print resposta

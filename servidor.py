@@ -50,7 +50,6 @@ porta = int(sys.argv[1])
 # Criacao do socket
 time_out = pack('ll', TIME_OUT, 0)
 socket_servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-socket_servidor.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, time_out)
 
 # Abertura passiva
 endereco = ("", porta)
@@ -61,10 +60,16 @@ contador = 0
 
 while True:
 	socket_cliente, cliente = socket_servidor.accept()
+	socket_cliente.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, time_out)
 
 	# Comunicacao entre o servidor e o cliente
 	while True:
-		mensagem = socket_cliente.recv(MSG_TAMANHO_MAX)
+		try:
+			mensagem = socket_cliente.recv(MSG_TAMANHO_MAX)
+		except socket.error, error:
+			erro_socket = error.args[0]
+			if erro_socket == errno.EAGAIN or erro_socket == errno.EWOULDBLOCK:
+				break
 
 		# Falha ao receber a mensagem
 		if not mensagem:
