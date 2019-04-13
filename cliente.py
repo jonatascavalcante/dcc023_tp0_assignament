@@ -1,10 +1,10 @@
 import sys
 import socket
-from struct import *
 import errno
+from struct import *
 
 MSG_TAMANHO_MAX = 6
-TIME_OUT 	    = 15
+TIME_OUT = 15
 
 def gera_mensagem(entrada):
     dados = entrada.split(" ")

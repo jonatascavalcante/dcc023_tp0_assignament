@@ -1,13 +1,13 @@
 import sys
 import socket
-from struct import *
 import errno
+from struct import *
 
 MSG_TAMANHO_MAX = 5
-MAX_CLIENTES    = 10
-MODULO_MAX 	    = 1000000
-QTD_DIGITOS     = 6
-TIME_OUT 	    = 15
+MAX_CLIENTES = 10
+MODULO_MAX = 1000000
+QTD_DIGITOS	= 6
+TIME_OUT = 15
 
 def decodifica_mensagem(mensagem, contador):
 	msg_cliente = unpack("!BI", mensagem)
