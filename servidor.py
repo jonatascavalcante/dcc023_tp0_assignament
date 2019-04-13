@@ -3,11 +3,11 @@ import socket
 import errno
 from struct import *
 
-MSG_TAMANHO_MAX = 5
-MAX_CLIENTES = 10
+MSG_TAMANHO_MAX	= 5
 MODULO_MAX = 1000000
 QTD_DIGITOS	= 6
-TIME_OUT = 15
+MAX_CLIENTES = 10
+SERVER_TIME_OUT	= 15
 
 def decodifica_mensagem(mensagem, contador):
 	msg_cliente = unpack("!BI", mensagem)
@@ -48,7 +48,7 @@ porta = int(sys.argv[1])
 
 # Criacao do socket
 # Criacao do socket
-time_out = pack('ll', TIME_OUT, 0)
+time_out = pack('ll', SERVER_TIME_OUT, 0)
 socket_servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Abertura passiva

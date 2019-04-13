@@ -4,7 +4,7 @@ import errno
 from struct import *
 
 MSG_TAMANHO_MAX = 6
-TIME_OUT = 15
+CLIENT_TIME_OUT = 15
 
 def gera_mensagem(entrada):
     dados = entrada.split(" ")
@@ -26,7 +26,7 @@ enderecoIP = sys.argv[1]
 porta      = int(sys.argv[2])
 
 # Criacao do socket
-time_out = pack('ll', TIME_OUT, 0)
+time_out = pack('ll', CLIENT_TIME_OUT, 0)
 socket_cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socket_cliente.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, time_out)
 
