@@ -1,6 +1,7 @@
 import sys
 import socket
 from struct import *
+import errno
 
 MSG_TAMANHO_MAX = 5
 MAX_CLIENTES    = 10
@@ -9,16 +10,15 @@ QTD_DIGITOS     = 6
 TIME_OUT 	    = 15
 
 def decodifica_mensagem(mensagem, contador):
-	sinal = mensagem[0]
-	valor = mensagem[1:]
+	msg_cliente = unpack("!BI", mensagem)
 
-	valor = unpack("!I", valor)
-	valor = valor[0]
+	sinal = msg_cliente[0]
+	valor = msg_cliente[1]
 
 	# Interpreta o valor do cliente e realiza a operacao correspondente
-	if sinal == '0':
+	if sinal == 0:
 		contador -= valor
-	elif sinal == '1':
+	elif sinal == 1:
 		contador += valor
 
 	contador = contador % MODULO_MAX

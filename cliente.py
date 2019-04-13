@@ -1,27 +1,23 @@
 import sys
 import socket
 from struct import *
+import errno
 
 MSG_TAMANHO_MAX = 6
 TIME_OUT 	    = 15
 
-def le_teclado(): 
-	entrada = raw_input()
-	if entrada: 
-		return entrada
-
 def gera_mensagem(entrada):
-	dados = entrada.split(" ")
-	sinal = dados[0]
-	valor = dados[1]
+    dados = entrada.split(" ")
+    sinal_entrada = dados[0]
+    valor = dados[1]
+    sinal_saida = 0
 
-	if sinal == "+":
-		mensagem = '1'
-	elif sinal == "-":
-		mensagem = '0'
-	valor_codificado = pack("!I", int(valor))
+    if(sinal_entrada == "+"):
+        sinal_saida = 1
+    elif(sinal_entrada == "-"):
+        sinal_saida = 0
 
-	return (mensagem + valor_codificado)
+    return pack("!BI", int(sinal_saida), int(valor))
 
 # Leitura da porta a ser atribuida ao servidor
 if len(sys.argv) < 3:
@@ -39,11 +35,8 @@ endServidor = (enderecoIP, porta)
 
 socket_cliente.connect(endServidor)
 
-# Aguarda entrada do teclado
-entrada_dados = le_teclado()
-
-while True:
-    mensagem = gera_mensagem(entrada_dados)
+for entrada in sys.stdin:
+    mensagem = gera_mensagem(entrada)
     nbytes = socket_cliente.send(mensagem)
     if nbytes != len(mensagem):
         break
@@ -58,7 +51,5 @@ while True:
         break
     print resposta
    	    
-    entrada_dados = le_teclado()
-
 # Finalizacao
 socket_cliente.close()
